@@ -247,7 +247,6 @@ assignment : T_ID arr_index T_ASSIGN a_expr
         src_temp = temp;
       }
 
-
       if ( $2 != NULL) 
       {
         int opcode;
