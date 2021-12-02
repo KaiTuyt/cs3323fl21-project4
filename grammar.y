@@ -129,7 +129,7 @@ construct_while :
       // Second semantic action
       // TODO: Jump to the end of the while body if the condition 
       // evaluates to zero.
-      itab_instruction_add (itab, OP_JZ, $4->addr, UNUSED_ARG, jump_dst);
+      itab_instruction_add (itab, OP_JZ, $4->addr, UNUSED_ARG, TBD_ARG);
       @$.begin.line = INSTRUCTION_LAST;
     }
     T_DO 
@@ -164,7 +164,7 @@ construct_repeat:
       int jump_dst = @2.begin.line;
       // TODO: Generate a jump-if-zero (OP_JZ) to the address stored in the first semantic
       // action of this rule
-      tab_instruction_add (itab, OP_JZ, INSTRUCTION_NEXT, NOARG, jump_dst);
+      itab_instruction_add (itab, OP_JZ, INSTRUCTION_NEXT, NOARG, jump_dst);
     }
     ;
 
@@ -178,13 +178,13 @@ construct_if :
       // DEFINE_ME = change to proper values.
       // TBDARG = Should modify the corresponding address (.addr#) in a later semantic action.
       // NOARG = No need to change.
-      itab_instruction_add (itab, OP_JZ, INSTRUCTION_LAST, NOARG, jump_dst);
+      itab_instruction_add (itab, OP_JZ, INSTRUCTION_LAST, NOARG, TBDARG);
       @$.begin.line = INSTRUCTION_NEXT; // INSTRUCTION_NEXT or INSTRUCTION_LAST
     }
     stmt 
     {
       // Second semantic action
-      itab_instruction_add (itab, OP_JMP, NOARG, NOARG, jump_dst);
+      itab_instruction_add (itab, OP_JMP, NOARG, NOARG, TBDARG);
       @$.begin.line = INSTRUCTION_NEXT; // INSTRUCTION_NEXT or INSTRUCTION_LAST
 
       int jmp_entry = @5.begin.line;
@@ -239,9 +239,9 @@ assignment : T_ID arr_index T_ASSIGN a_expr
         temp = make_temp (symtab, sym->datatype);
         // TASK: Complete the four TBD_ARG in both calls to itab_instruction_add.
         if (sym->datatype == DTYPE_INT)
-          itab_instruction_add (itab, OP_CAST_FLOAT2INT, DTYPE_FLOAT, UNUSED_ARG, DTYPE_INT);
+          itab_instruction_add (itab, OP_CAST_FLOAT2INT, temp->addr, UNUSED_ARG, src_temp->addr);
         else
-          itab_instruction_add (itab, OP_CAST_INT2FLOAT, DTYPE_INT, UNUSED_ARG, DTYPE_FLOAT);
+          itab_instruction_add (itab, OP_CAST_INT2FLOAT, temp->addr, UNUSED_ARG, src_temp->addr);
 
         // Final store to the array will use the intermediate variable resulting from the cast.
         src_temp = temp;
@@ -264,7 +264,7 @@ assignment : T_ID arr_index T_ASSIGN a_expr
 
         // TASK: Complete the two TBD_ARG in the following call to itab_instruction_add.
         // HINT: See the code corresponding to OP_LOAD_ARRAY_VAL_*
-        itab_instruction_add (itab, opcode, sym->datatype, $2->addr, src_temp->addr);
+        itab_instruction_add (itab, opcode, sym->addr, $2->addr, src_temp->addr);
       }
       else
       {
