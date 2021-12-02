@@ -129,7 +129,7 @@ construct_while :
       // Second semantic action
       // TODO: Jump to the end of the while body if the condition 
       // evaluates to zero.
-      itab_instruction_add (itab, OP_JZ, $4->addr, UNUSED_ARG, TBD_ARG);
+      itab_instruction_add (itab, OP_JZ, $4->addr, UNUSED_ARG, jump_dst);
       @$.begin.line = INSTRUCTION_LAST;
     }
     T_DO 
@@ -178,23 +178,23 @@ construct_if :
       // DEFINE_ME = change to proper values.
       // TBDARG = Should modify the corresponding address (.addr#) in a later semantic action.
       // NOARG = No need to change.
-      itab_instruction_add (itab, DEFINE_ME, DEFINE_ME, NOARG, TBDARG);
-      @$.begin.line = DEFINE_ME; // INSTRUCTION_NEXT or INSTRUCTION_LAST
+      itab_instruction_add (itab, OP_JZ, INSTRUCTION_LAST, NOARG, jump_dst);
+      @$.begin.line = INSTRUCTION_NEXT; // INSTRUCTION_NEXT or INSTRUCTION_LAST
     }
     stmt 
     {
       // Second semantic action
-      itab_instruction_add (itab, OP_JMP, NOARG, NOARG, TBDARG);
-      @$.begin.line =  DEFINE_ME; // INSTRUCTION_NEXT or INSTRUCTION_LAST
+      itab_instruction_add (itab, OP_JMP, NOARG, NOARG, jump_dst);
+      @$.begin.line = INSTRUCTION_NEXT; // INSTRUCTION_NEXT or INSTRUCTION_LAST
 
       int jmp_entry = @5.begin.line;
-      itab->tab[jmp_entry]->addr3 = DEFINE_ME; // INSTRUCTION_NEXT or INSTRUCTION_LAST
+      itab->tab[jmp_entry]->addr3 = INSTRUCTION_LAST; // INSTRUCTION_NEXT or INSTRUCTION_LAST
     }
     construct_else
     {
       // Third semantic action
       int jmp_entry = @7.begin.line;
-      itab->tab[jmp_entry]->addr3 = DEFINE_ME; // INSTRUCTION_NEXT or INSTRUCTION_LAST
+      itab->tab[jmp_entry]->addr3 = INSTRUCTION_LAST; // INSTRUCTION_NEXT or INSTRUCTION_LAST
     }
     ;
 
